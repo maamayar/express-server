@@ -45,6 +45,9 @@ npm install express
 ```
 npm start
 ```
-5. Acceso a la Aplicación: Ahora puedes acceder a nuestro Sistema de Gestión de Tareas a través de tu navegador web visitando la dirección: http://localhost:3000 (o el puerto que hayas configurado en tu archivo .env).
+5. Acceso a la Aplicación: Ahora puedes acceder a nuestro Sistema de Gestión de Tareas a través de tu navegador web visitando la dirección(o el puerto que hayas configurado en tu archivo .env):
+```
+ http://localhost:3000
+ ``` 
 
 ¡Listo! Ahora estás listo para comenzar a utilizar nuestro Sistema de Gestión de Tareas y mejorar tu productividad.¡Gracias por elegirnos!
