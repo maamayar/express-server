@@ -7,25 +7,32 @@ router.post("/", (req, res) => {
    const {id, description} = req.body;
 
     if (!id || isNaN(id) || !description) {
-        return res.status(400).json({ error: "Debe proporcionar un identificador numérico o una descripción válida" });
+        return res.status(400).json({ error: "Inválido. Debe proporcionar un id que no exista o agregar una descripción, de lo contrario la tarea no será agregada. Intentelo nuevamente." });
     }
 
     if (repeateTask(id)) {
-        return res.status(400).json({ error: "Identificacor numérico inválido" });
+        return res.status(400).json({ error: "Identificacor numérico inválido, no puedes utilizar un número para el id que ya exista. Intentelo nuevamente." });
     }
 
     const task = new Task(id, description, false) 
     addTask(task)
 
-    res.json({ mensaje: "Tarea agregada con éxito" });
+    res.json({ mensaje: "Tarea agregada correctamente" });
 });
 
-// Eliminar tarea por id 
+// Eliminar tarea por id
 router.delete("/:id", (req, res) => {
     const id = req.params.id;
-    deleteTask(id);  
-    return res.json({ mensaje: "Tarea eliminada correctamente" });
+    const taskIndex = tasks.findIndex((task) => task.id === id);
+
+    if (taskIndex === -1) {
+        res.status(400).json({ error: "La tarea ya ha sido eliminada o no existe" });
+    } else {
+        tasks.splice(taskIndex, 1);
+        res.json({ mensaje: "Tarea eliminada exitosamente" });
+    }
 });
+
 
 // Completar tarea por id
 router.put("/:id", (req, res) => {
@@ -33,9 +40,9 @@ router.put("/:id", (req, res) => {
     const task = tasks.find((task) => task.id === id);
     if (task) {
         completeTask(task.id); 
-        return res.json({ mensaje: "Tarea completada exitosamente" });
+        return res.json({ mensaje: "Tarea completada correctamente" });
     }
-    res.status(404).json({ error: "No es posible completar la tarea, ya que ninguna tarea coincide con  el identificar númerico  suministrado.Intentelo de nuevo." });
+    res.status(404).json({ error: "No es posible completar la tarea, ya que ninguna tarea coincide con  el identificar númerico  suministrado. Intentelo nuevamente." });
 });
 
 module.exports = router;
