@@ -8,10 +8,11 @@ class Task {
 }
 const tasks = [];
 
+//recibe la tarea y la agrega a la matriz Tasks
 const addTask = function(task) {
     tasks.push(task)
 }
-
+//devuelve la matriz de la lista de tareas compelta 
 const listTask = function() {
     return tasks
 }
