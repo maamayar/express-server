@@ -13,14 +13,14 @@ const jwt = require("jsonwebtoken");
 // Importar variable de entorno secreto
 const secretKey = process.env.JWT_SECRET;
 
+// Solicitudes - JSON
+app.use(express.json());
+
 // Usuarios predefinidos (solo como ejemplo, usa una base de datos en producción)
 const users = [
     { id: 1, username: "user1", password: "pass1" },
     { id: 2, username: "user2", password: "pass2" },
   ];
-
-// Solicitudes - JSON
-app.use(express.json());
 
 // Middleware para validar los métodos HTTP permitidos
 function validateHTTPMethod(req, res, next) {
@@ -30,7 +30,6 @@ function validateHTTPMethod(req, res, next) {
     if (!validMethods.includes(method)) {
         return res.status(405).json({ error: "Método HTTP no permitido. Intentelo nuevamente." });
     }
-
     next();
 }
 
@@ -105,5 +104,5 @@ app.use(errorHandler);
 
 
 app.listen(port, () => {
-    console.log("Servidor corriendo en puerto 3030", `${port}`);
+    console.log("Servidor corriendo en puerto", `${port}`);
 });

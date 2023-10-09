@@ -1,41 +1,50 @@
 const express = require("express");
 const router = express.Router();
-const {listTask, tasks} = require("./objects")
-
+const { listTasks, tasks } = require("./objects");
 
 // Middleware para validar el parámetro 'completed'
 function validateCompletedParam(req, res, next) {
-    const isCompleted = req.query.completed;
+  const isCompleted = req.query.completed;
 
-    if (isCompleted !== "true" && isCompleted !== "false") {
-        return res.status(400).json({ error: "El parámetro 'completed' debe ser 'true' o 'false'" });
-    }
+  if (isCompleted !== "true" && isCompleted !== "false") {
+    return res.status(400).json({ error: "El parámetro 'completed' debe ser 'true' o 'false'" });
+  }
 
-    next();
+  next();
 }
-// Muestra - tareas existentes en la ruta- GET
+
+// Listar todas las tareas - Ruta GET
 router.get("/", (req, res) => {
-    res.json(listTask());
-})
-
-// Ruta - Filtrar lista de tareas por estado (completadas o incompletas)
-router.get("/status",validateCompletedParam, (req, res) => {
-    const isCompleted = req.query.completed; // El valor de 'completed' se recibe como un parámetro de consulta
-
-    if (isCompleted === "true") {
-        const completedTasks = tasks.filter((task) => task.completed);
-        if (completedTasks.length === 0) {
-            res.status(404).json({ error: "Por el momento, ninguna tarea está completa" });
-        } else {
-            res.json(completedTasks);
-        }
-    } else if (isCompleted === "false") {
-        const incompleteTasks = tasks.filter((task) => !task.completed);
-        if (incompleteTasks.length === 0) {
-            res.status(404).json({ error: "Todas las tareas están completadas" });
-        } else {
-            res.json(incompleteTasks);
-        }
-    } 
+  res.json(listTasks());
 });
+
+// Listar las tareas completas e incompletas - Ruta GET
+router.get("/status", validateCompletedParam, (req, res) => {
+  const isCompleted = req.query.completed === "true";
+
+  const filteredTasks = tasks.filter((task) => task.completed === isCompleted);
+
+  if (filteredTasks.length === 0) {
+    if (isCompleted) {
+      res.status(404).json({ error: "No hay tareas completadas" });
+    } else {
+      res.status(404).json({ error: "No hay tareas incompletas" });
+    }
+  } else {
+    res.json(filteredTasks);
+  }
+});
+
+// Obtener una sola tarea por ID - Ruta GET
+router.get("/:id", (req, res) => {
+  const taskId = req.params.id;
+  const task = tasks.find((task) => task.id === taskId);
+
+  if (!task) {
+    res.status(404).json({ error: "Tarea no encontrada" });
+  } else {
+    res.json(task);
+  }
+});
+
 module.exports = router;

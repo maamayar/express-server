@@ -1,48 +1,56 @@
 const express = require("express");
 const router = express.Router();
-const {tasks, Task, addTask, repeateTask, deleteTask, completeTask} = require("./objects")
+const { tasks, Task, addTask, findTaskById, deleteTask, completeTask } = require("./objects");
 
-// Agregar una tarea nueva (id y descripción se envían en el cuerpo de la solicitud)
+// Obtener todas las tareas
+router.get("/", (req, res) => {
+  res.json(tasks);
+});
+
+// Crear una nueva tarea
 router.post("/", (req, res) => {
-   const {id, description} = req.body;
+  const { id, description } = req.body;
 
-    if (!id || isNaN(id) || !description) {
-        return res.status(400).json({ error: "Inválido. Debe proporcionar un id que no exista o agregar una descripción, de lo contrario la tarea no será agregada. Intentelo nuevamente." });
-    }
+  if (!id || isNaN(id) || !description) {
+    return res.status(400).json({ error: "Solicitud inválida. Debe proporcionar un id que no exista o agregar una descripción." });
+  }
 
-    if (repeateTask(id)) {
-        return res.status(400).json({ error: "Identificacor numérico inválido, no puedes utilizar un número para el id que ya exista. Intentelo nuevamente." });
-    }
+  if (findTaskById(id)) {
+    return res.status(400).json({ error: "Identificador numérico inválido. No puedes utilizar un número para el id que ya exista." });
+  }
 
-    const task = new Task(id, description, false) 
-    addTask(task)
+  const task = new Task(id, description, false);
+  addTask(task);
 
-    res.json({ mensaje: "Tarea agregada correctamente" });
+  res.status(201).json({ mensaje: "Tarea agregada correctamente", tarea: task });
 });
 
-// Eliminar tarea por id
-router.delete("/:id", (req, res) => {
-    const id = req.params.id;
-    const taskIndex = tasks.findIndex((task) => task.id === id);
-
-    if (taskIndex === -1) {
-        res.status(400).json({ error: "La tarea ya ha sido eliminada o no existe" });
-    } else {
-        tasks.splice(taskIndex, 1);
-        res.json({ mensaje: "Tarea eliminada exitosamente" });
-    }
-});
-
-
-// Completar tarea por id
+// Actualizar una tarea por id
 router.put("/:id", (req, res) => {
-    const id = req.params.id;
-    const task = tasks.find((task) => task.id === id);
-    if (task) {
-        completeTask(task.id); 
-        return res.json({ mensaje: "Tarea completada correctamente" });
-    }
-    res.status(404).json({ error: "No es posible completar la tarea, ya que ninguna tarea coincide con  el identificar númerico  suministrado. Intentelo nuevamente." });
+  const id = req.params.id;
+  const task = findTaskById(id);
+
+  if (!task) {
+    return res.status(404).json({ error: "No se puede encontrar la tarea. El identificador numérico proporcionado no coincide con ninguna tarea existente." });
+  }
+
+  task.description = req.body.description || task.description;
+  task.completed = req.body.completed || task.completed;
+
+  res.json({ mensaje: "Tarea actualizada correctamente", tarea: task });
+});
+
+// Eliminar una tarea por id
+router.delete("/:id", (req, res) => {
+  const id = req.params.id;
+  const task = findTaskById(id);
+
+  if (!task) {
+    return res.status(404).json({ error: "No se puede encontrar la tarea. El identificador numérico proporcionado no coincide con ninguna tarea existente." });
+  }
+
+  deleteTask(id);
+  res.json({ mensaje: "Tarea eliminada exitosamente" });
 });
 
 module.exports = router;
